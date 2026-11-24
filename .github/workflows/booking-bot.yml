@@ -1,0 +1,28 @@
+name: booking-bot
+
+on:
+  push:
+    paths: ["booking-bot/**", ".github/workflows/booking-bot.yml"]
+  pull_request:
+    paths: ["booking-bot/**"]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: booking-bot
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements-dev.txt
+      - name: Тесты
+        run: pytest -q
+      - name: Линтер
+        run: ruff check . && ruff format --check .
+      - name: Типы
+        run: mypy bot tests
+      - name: Безопасность
+        run: bandit -q -r bot
