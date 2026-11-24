@@ -1,0 +1,28 @@
+name: price-monitor
+
+on:
+  push:
+    paths: ["price-monitor/**", ".github/workflows/price-monitor.yml"]
+  pull_request:
+    paths: ["price-monitor/**"]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: price-monitor
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements-dev.txt
+      - name: Тесты
+        run: pytest -q
+      - name: Линтер
+        run: ruff check . && ruff format --check .
+      - name: Типы
+        run: mypy monitor tests
+      - name: Безопасность
+        run: bandit -q -r monitor
